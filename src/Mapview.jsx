@@ -3,11 +3,11 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, useMap } from
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet.heat';
-import { 
-  Map as MapIcon, 
-  Flame, 
-  Users, 
-  Layers, 
+import {
+  Map as MapIcon,
+  Flame,
+  Users,
+  Layers,
   Target,
   BarChart3,
   X,
@@ -24,7 +24,6 @@ import {
 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
-// Фикс иконок Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -32,28 +31,25 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Компонент для автоматической подстройки карты под маркеры
 function MapBoundsAdjuster({ points, mode }) {
   const map = useMap();
-  
+
   useEffect(() => {
     if (points.length > 0 && mode === 'markers') {
       const bounds = L.latLngBounds(points.map(p => [p.lat, p.lng]));
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
     }
   }, [points, mode, map]);
-  
+
   return null;
 }
 
-// Компонент для тепловой карты используя leaflet.heat
 function HeatmapLayer({ points, radius, blur, gradient }) {
   const map = useMap();
-  
+
   useEffect(() => {
     if (!map || !points || points.length === 0) return;
-    
-    // Создаем тепловую карту
+
     const heatLayer = L.heatLayer(points, {
       radius: radius || 25,
       blur: blur || 15,
@@ -67,17 +63,15 @@ function HeatmapLayer({ points, radius, blur, gradient }) {
         1.0: '#dc2626'
       }
     }).addTo(map);
-    
-    // Очистка при размонтировании
+
     return () => {
       map.removeLayer(heatLayer);
     };
   }, [map, points, radius, blur, gradient]);
-  
+
   return null;
 }
 
-// Генерация цветов для категорий
 const generateColors = (count) => {
   const colors = [
     '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6',
@@ -86,7 +80,6 @@ const generateColors = (count) => {
   return colors.slice(0, Math.min(count, colors.length));
 };
 
-// Создание кастомной иконки по цвету
 const createColoredIcon = (color) => {
   return L.divIcon({
     html: `<div style="background-color: ${color}; width: 25px; height: 25px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
@@ -99,8 +92,7 @@ const createColoredIcon = (color) => {
 function MapView({ data, dataTypes, filteredData }) {
   const activeData = filteredData || data;
 
-  // Состояния
-  const [mapMode, setMapMode] = useState('markers'); // markers, heatmap, clusters, routes
+  const [mapMode, setMapMode] = useState('markers');
   const [selectedLatField, setSelectedLatField] = useState(null);
   const [selectedLonField, setSelectedLonField] = useState(null);
   const [colorByField, setColorByField] = useState(null);
@@ -116,53 +108,49 @@ function MapView({ data, dataTypes, filteredData }) {
   const [showCircles, setShowCircles] = useState(false);
   const [circleRadius, setCircleRadius] = useState(5000);
 
-  // Извлечение полей координат
   const coordinateFields = useMemo(() => {
     if (!dataTypes) return { latFields: [], lonFields: [] };
-    
-    // Ищем поля с типом 'coordinate', 'latitude', 'longitude' или по названию
+
     const latFields = Object.entries(dataTypes)
       .filter(([field, type]) => {
         const fieldLower = field.toLowerCase();
-        return type === 'coordinate' || 
-               type === 'latitude' || 
+        return type === 'coordinate' ||
+               type === 'latitude' ||
                fieldLower.includes('lat') ||
                fieldLower === 'latitude' ||
                fieldLower === 'широта';
       })
       .map(([field]) => field);
-    
+
     const lonFields = Object.entries(dataTypes)
       .filter(([field, type]) => {
         const fieldLower = field.toLowerCase();
-        return type === 'coordinate' || 
-               type === 'longitude' || 
+        return type === 'coordinate' ||
+               type === 'longitude' ||
                fieldLower.includes('lon') ||
                fieldLower.includes('lng') ||
                fieldLower === 'longitude' ||
                fieldLower === 'долгота';
       })
       .map(([field]) => field);
-    
-    // Если нашли поля с типом 'coordinate', разделяем на lat/lon
+
     if (latFields.length === 0 && lonFields.length === 0) {
       const coordFields = Object.entries(dataTypes)
         .filter(([_, type]) => type === 'coordinate')
         .map(([field]) => field);
-      
+
       if (coordFields.length >= 2) {
-        // Первое поле - широта, второе - долгота
-        return { 
-          latFields: [coordFields[0]], 
-          lonFields: [coordFields[1]] 
+
+        return {
+          latFields: [coordFields[0]],
+          lonFields: [coordFields[1]]
         };
       }
     }
-    
+
     return { latFields, lonFields };
   }, [dataTypes]);
 
-  // Автоматический выбор полей координат
   useEffect(() => {
     if (coordinateFields.latFields.length > 0 && !selectedLatField) {
       setSelectedLatField(coordinateFields.latFields[0]);
@@ -172,7 +160,6 @@ function MapView({ data, dataTypes, filteredData }) {
     }
   }, [coordinateFields, selectedLatField, selectedLonField]);
 
-  // Инициализация видимых полей
   useEffect(() => {
     if (data && data.length > 0 && Object.keys(visibleFields).length === 0) {
       const fields = Object.keys(data[0]);
@@ -184,19 +171,18 @@ function MapView({ data, dataTypes, filteredData }) {
     }
   }, [data, visibleFields]);
 
-  // Подготовка точек для карты
   const mapPoints = useMemo(() => {
     if (!selectedLatField || !selectedLonField || !activeData) return [];
-    
+
     return activeData
       .map((row, index) => {
         const lat = parseFloat(row[selectedLatField]);
         const lng = parseFloat(row[selectedLonField]);
-        
+
         if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
           return null;
         }
-        
+
         return {
           id: index,
           lat,
@@ -207,57 +193,52 @@ function MapView({ data, dataTypes, filteredData }) {
       .filter(point => point !== null);
   }, [activeData, selectedLatField, selectedLonField]);
 
-  // Фильтрация по поиску
   const filteredPoints = useMemo(() => {
     if (!searchQuery) return mapPoints;
-    
+
     const query = searchQuery.toLowerCase();
     return mapPoints.filter(point => {
-      return Object.values(point.data).some(value => 
+      return Object.values(point.data).some(value =>
         String(value).toLowerCase().includes(query)
       );
     });
   }, [mapPoints, searchQuery]);
 
-  // Цветовое кодирование
   const colorMapping = useMemo(() => {
     if (!colorByField || filteredPoints.length === 0) return {};
-    
+
     const uniqueValues = [...new Set(filteredPoints.map(p => p.data[colorByField]))];
     const colors = generateColors(uniqueValues.length);
-    
+
     const mapping = {};
     uniqueValues.forEach((value, index) => {
       mapping[value] = colors[index] || '#6b7280';
     });
-    
+
     return mapping;
   }, [colorByField, filteredPoints]);
 
-  // Размер маркеров
   const getSizeForPoint = (point) => {
     if (!sizeByField) return 5000;
     const value = parseFloat(point.data[sizeByField]);
     if (isNaN(value)) return 5000;
-    
+
     const values = filteredPoints.map(p => parseFloat(p.data[sizeByField])).filter(v => !isNaN(v));
     const min = Math.min(...values);
     const max = Math.max(...values);
-    
-    // Нормализация от 3000 до 15000 метров
+
     return 3000 + ((value - min) / (max - min)) * 12000;
   };
 
-  // Подготовка данных для heatmap
   const heatmapPoints = useMemo(() => {
     if (!heatmapIntensityField) {
       return filteredPoints.map(p => [p.lat, p.lng, 1]);
     }
-    
+
     const values = filteredPoints.map(p => parseFloat(p.data[heatmapIntensityField])).filter(v => !isNaN(v));
     const min = Math.min(...values);
     const max = Math.max(...values);
-    
+
     return filteredPoints.map(p => {
       const value = parseFloat(p.data[heatmapIntensityField]);
       const normalized = isNaN(value) ? 0.5 : (value - min) / (max - min);
@@ -265,10 +246,9 @@ function MapView({ data, dataTypes, filteredData }) {
     });
   }, [filteredPoints, heatmapIntensityField]);
 
-  // Группировка точек для маршрутов
   const routeGroups = useMemo(() => {
     if (!routeByField || mapMode !== 'routes') return [];
-    
+
     const groups = {};
     filteredPoints.forEach(point => {
       const groupValue = point.data[routeByField];
@@ -277,7 +257,7 @@ function MapView({ data, dataTypes, filteredData }) {
       }
       groups[groupValue].push([point.lat, point.lng]);
     });
-    
+
     return Object.entries(groups).map(([name, positions], index) => ({
       name,
       positions,
@@ -285,20 +265,19 @@ function MapView({ data, dataTypes, filteredData }) {
     }));
   }, [filteredPoints, routeByField, mapMode]);
 
-  // Статистика по всем точкам
   const overallStats = useMemo(() => {
     if (filteredPoints.length === 0) return null;
-    
+
     const numericFields = Object.entries(dataTypes || {})
       .filter(([_, type]) => type === 'number')
       .map(([field]) => field);
-    
+
     const stats = {};
     numericFields.forEach(field => {
       const values = filteredPoints
         .map(p => parseFloat(p.data[field]))
         .filter(v => !isNaN(v));
-      
+
       if (values.length > 0) {
         stats[field] = {
           min: Math.min(...values),
@@ -308,19 +287,18 @@ function MapView({ data, dataTypes, filteredData }) {
         };
       }
     });
-    
+
     return stats;
   }, [filteredPoints, dataTypes]);
 
-  // Экспорт данных точек
   const exportMapData = () => {
     const csvContent = [
       ['Широта', 'Долгота', ...Object.keys(filteredPoints[0]?.data || {})].join(','),
-      ...filteredPoints.map(p => 
+      ...filteredPoints.map(p =>
         [p.lat, p.lng, ...Object.values(p.data)].join(',')
       )
     ].join('\n');
-    
+
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -328,7 +306,6 @@ function MapView({ data, dataTypes, filteredData }) {
     link.click();
   };
 
-  // Если нет координат
   if (coordinateFields.latFields.length === 0 || coordinateFields.lonFields.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-12 text-center">
@@ -343,7 +320,6 @@ function MapView({ data, dataTypes, filteredData }) {
     );
   }
 
-  // Если нет валидных точек в исходных данных (не в поиске!)
   if (mapPoints.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-12 text-center">
@@ -358,22 +334,20 @@ function MapView({ data, dataTypes, filteredData }) {
     );
   }
 
-  // Центр карты - используем mapPoints (все точки), а не filteredPoints
   const center = [mapPoints[0].lat, mapPoints[0].lng];
-  
-  // Флаг: есть ли результаты поиска
+
   const hasSearchResults = filteredPoints.length > 0;
   const isSearchActive = searchQuery.trim().length > 0;
 
   return (
     <div className="relative h-screen flex">
-      {/* Панель управления слева */}
+      { }
       <div className={`bg-white shadow-2xl transition-all duration-300 overflow-y-auto ${
         isControlPanelOpen ? 'w-80' : 'w-0'
       }`}>
         {isControlPanelOpen && (
           <div className="p-6 space-y-6">
-            {/* Заголовок */}
+            { }
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <MapIcon className="w-5 h-5 text-pink-600" />
@@ -387,7 +361,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </button>
             </div>
 
-            {/* Поиск */}
+            { }
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Search className="w-4 h-4 inline mr-1" />
@@ -415,7 +389,7 @@ function MapView({ data, dataTypes, filteredData }) {
               )}
             </div>
 
-            {/* Режим отображения */}
+            { }
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Layers className="w-4 h-4 inline mr-1" />
@@ -444,7 +418,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </div>
             </div>
 
-            {/* Выбор полей координат */}
+            { }
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -477,7 +451,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </div>
             </div>
 
-            {/* Цветовое кодирование */}
+            { }
             {mapMode === 'markers' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -515,7 +489,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </div>
             )}
 
-            {/* Размер маркеров/кругов */}
+            { }
             {(mapMode === 'markers' || showCircles) && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -536,7 +510,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </div>
             )}
 
-            {/* Настройки тепловой карты */}
+            { }
             {mapMode === 'heatmap' && (
               <div className="space-y-3">
                 <div>
@@ -573,7 +547,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </div>
             )}
 
-            {/* Настройки маршрутов */}
+            { }
             {mapMode === 'routes' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -615,7 +589,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </div>
             )}
 
-            {/* Показывать круги */}
+            { }
             {mapMode === 'markers' && (
               <div>
                 <label className="flex items-center space-x-2 cursor-pointer">
@@ -646,7 +620,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </div>
             )}
 
-            {/* Поля в popup */}
+            { }
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Поля в popup
@@ -669,7 +643,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </div>
             </div>
 
-            {/* Действия */}
+            { }
             <div className="space-y-2 pt-4 border-t">
               <button
                 onClick={() => setIsStatsPanelOpen(!isStatsPanelOpen)}
@@ -693,7 +667,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </button>
             </div>
 
-            {/* Счетчик точек */}
+            { }
             <div className="pt-4 border-t">
               <div className="bg-pink-50 rounded-lg p-3 text-center">
                 <p className="text-2xl font-bold text-pink-600">
@@ -708,7 +682,7 @@ function MapView({ data, dataTypes, filteredData }) {
         )}
       </div>
 
-      {/* Кнопка открытия панели управления */}
+      { }
       {!isControlPanelOpen && (
         <button
           onClick={() => setIsControlPanelOpen(true)}
@@ -718,7 +692,7 @@ function MapView({ data, dataTypes, filteredData }) {
         </button>
       )}
 
-      {/* Карта */}
+      { }
       <div className="flex-1 relative">
         <MapContainer
           center={center}
@@ -733,7 +707,7 @@ function MapView({ data, dataTypes, filteredData }) {
 
           <MapBoundsAdjuster points={hasSearchResults ? filteredPoints : mapPoints} mode={mapMode} />
 
-          {/* Режим: Точки */}
+          { }
           {mapMode === 'markers' && filteredPoints.map((point) => {
             const color = colorByField ? colorMapping[point.data[colorByField]] : '#ef4444';
             const icon = createColoredIcon(color);
@@ -760,7 +734,7 @@ function MapView({ data, dataTypes, filteredData }) {
                     </div>
                   </Popup>
                 </Marker>
-                
+
                 {showCircles && (
                   <Circle
                     center={[point.lat, point.lng]}
@@ -777,7 +751,7 @@ function MapView({ data, dataTypes, filteredData }) {
             );
           })}
 
-          {/* Режим: Тепловая карта */}
+          { }
           {mapMode === 'heatmap' && heatmapPoints.length > 0 && (
             <HeatmapLayer
               points={heatmapPoints}
@@ -793,7 +767,7 @@ function MapView({ data, dataTypes, filteredData }) {
             />
           )}
 
-          {/* Режим: Кластеры */}
+          { }
           {mapMode === 'clusters' && (
             <MarkerClusterGroup>
               {filteredPoints.map((point) => {
@@ -825,7 +799,7 @@ function MapView({ data, dataTypes, filteredData }) {
             </MarkerClusterGroup>
           )}
 
-          {/* Режим: Маршруты */}
+          { }
           {mapMode === 'routes' && routeGroups.map((group) => (
             <React.Fragment key={group.name}>
               <Polyline
@@ -854,7 +828,7 @@ function MapView({ data, dataTypes, filteredData }) {
           ))}
         </MapContainer>
 
-        {/* Overlay при пустом поиске */}
+        { }
         {isSearchActive && !hasSearchResults && (
           <div className="absolute inset-0 bg-white bg-opacity-90 z-[1000] flex items-center justify-center pointer-events-none">
             <div className="text-center max-w-md px-4">
@@ -872,7 +846,7 @@ function MapView({ data, dataTypes, filteredData }) {
           </div>
         )}
 
-        {/* Индикатор режима */}
+        { }
         <div className="absolute top-4 right-4 z-[1000] bg-white shadow-lg rounded-lg px-4 py-2">
           <p className="text-sm font-medium text-gray-700">
             {mapMode === 'markers' && '📍 Точки на карте'}
@@ -883,7 +857,7 @@ function MapView({ data, dataTypes, filteredData }) {
         </div>
       </div>
 
-      {/* Панель статистики справа */}
+      { }
       {isStatsPanelOpen && (
         <div className="w-80 bg-white shadow-2xl overflow-y-auto">
           <div className="p-6 space-y-6">
@@ -900,7 +874,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </button>
             </div>
 
-            {/* Общая статистика */}
+            { }
             <div className="space-y-3">
               <h4 className="text-sm font-semibold text-gray-700 uppercase">
                 Общие данные
@@ -917,7 +891,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </div>
             </div>
 
-            {/* Статистика по числовым полям */}
+            { }
             {overallStats && Object.keys(overallStats).length > 0 && (
               <div className="space-y-3">
                 <h4 className="text-sm font-semibold text-gray-700 uppercase">
@@ -959,7 +933,7 @@ function MapView({ data, dataTypes, filteredData }) {
               </div>
             )}
 
-            {/* Распределение по категориям */}
+            { }
             {colorByField && colorMapping && Object.keys(colorMapping).length > 0 && (
               <div className="space-y-3">
                 <h4 className="text-sm font-semibold text-gray-700 uppercase">

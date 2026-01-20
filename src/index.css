@@ -3,7 +3,6 @@
 @tailwind utilities;
 @import './styles/common.css';
 @import 'leaflet/dist/leaflet.css';
-
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -12,7 +11,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
 html {
   scroll-behavior: smooth;
 }

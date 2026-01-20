@@ -7,7 +7,6 @@ const FileUploader = ({ onFileLoad }) => {
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Обработка drag events
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -31,7 +30,6 @@ const FileUploader = ({ onFileLoad }) => {
     }
   };
 
-  // Обработка выбора файла через input
   const handleFileInput = (e) => {
     const files = e.target.files;
     if (files.length > 0) {
@@ -39,15 +37,13 @@ const FileUploader = ({ onFileLoad }) => {
     }
   };
 
-  // Валидация и парсинг файла
   const handleFile = (file) => {
-    // Проверка формата
+
     if (!file.name.endsWith('.csv')) {
       alert('❌ Ошибка: Поддерживаются только CSV файлы');
       return;
     }
 
-    // Проверка размера (5MB = 5 * 1024 * 1024 bytes)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       alert('❌ Ошибка: Размер файла превышает 5MB');
@@ -56,14 +52,13 @@ const FileUploader = ({ onFileLoad }) => {
 
     setIsProcessing(true);
 
-    // Парсинг CSV с помощью Papaparse
     Papa.parse(file, {
       header: true,
       dynamicTyping: true,
       skipEmptyLines: true,
       complete: (results) => {
         setIsProcessing(false);
-        
+
         if (results.errors.length > 0) {
           console.error('Ошибки парсинга:', results.errors);
           alert('⚠️ Файл загружен с предупреждениями. Проверьте консоль.');
@@ -87,23 +82,23 @@ const FileUploader = ({ onFileLoad }) => {
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6">
-      {/* Drag-and-drop зона */}
+      { }
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`
-          relative border-2 border-dashed rounded-2xl p-12 
+          relative border-2 border-dashed rounded-2xl p-12
           transition-all duration-300 ease-in-out cursor-pointer
-          ${isDragging 
-            ? 'border-sakura-500 bg-sakura-50 scale-105' 
+          ${isDragging
+            ? 'border-sakura-500 bg-sakura-50 scale-105'
             : 'border-gray-300 bg-gradient-to-br from-sakura-50 to-white hover:border-sakura-400 hover:shadow-lg'
           }
           ${isProcessing ? 'opacity-50 pointer-events-none' : ''}
         `}
         onClick={() => document.getElementById('file-input').click()}
       >
-        {/* Скрытый input для выбора файла */}
+        { }
         <input
           id="file-input"
           type="file"
@@ -112,24 +107,24 @@ const FileUploader = ({ onFileLoad }) => {
           className="hidden"
         />
 
-        {/* Контент зоны загрузки */}
+        { }
         <div className="flex flex-col items-center justify-center space-y-4">
-          {/* Иконка */}
+          { }
           <div className={`
             p-4 rounded-full transition-all duration-300
-            ${isDragging 
-              ? 'bg-sakura-500 scale-110' 
+            ${isDragging
+              ? 'bg-sakura-500 scale-110'
               : 'bg-gradient-to-br from-sakura-400 to-sakura-600'
             }
           `}>
             <Upload className="w-12 h-12 text-white" />
           </div>
 
-          {/* Текст */}
+          { }
           <div className="text-center">
             <p className="text-lg font-semibold text-gray-700 mb-2">
-              {isProcessing 
-                ? 'Обработка файла...' 
+              {isProcessing
+                ? 'Обработка файла...'
                 : 'Перетащите CSV файл или нажмите для выбора'
               }
             </p>
@@ -138,13 +133,13 @@ const FileUploader = ({ onFileLoad }) => {
             </p>
           </div>
 
-          {/* Кнопка выбора файла */}
+          { }
           {!isProcessing && (
             <button
               className="
-                px-6 py-3 bg-gradient-to-r from-sakura-400 to-sakura-600 
+                px-6 py-3 bg-gradient-to-r from-sakura-400 to-sakura-600
                 text-white font-medium rounded-lg shadow-md
-                hover:shadow-xl hover:scale-105 
+                hover:shadow-xl hover:scale-105
                 transition-all duration-300
               "
               onClick={(e) => {
@@ -158,7 +153,7 @@ const FileUploader = ({ onFileLoad }) => {
         </div>
       </div>
 
-      {/* Информация о загруженном файле */}
+      { }
       {uploadedFileName && !isProcessing && (
         <div className="mt-6 p-4 bg-white rounded-lg shadow-md border border-green-200">
           <div className="flex items-center space-x-3">
@@ -182,12 +177,12 @@ const FileUploader = ({ onFileLoad }) => {
         </div>
       )}
 
-      {/* Подсказка */}
+      { }
       <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
         <div className="flex items-start space-x-2">
           <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-blue-800">
-            <strong>Формат CSV:</strong> Первая строка должна содержать заголовки столбцов. 
+            <strong>Формат CSV:</strong> Первая строка должна содержать заголовки столбцов.
             Данные автоматически преобразуются в числа, где возможно.
           </p>
         </div>

@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { Table2, Hash, Calendar, Type, MapPin, Info, CheckCircle } from 'lucide-react';
 import { detectDataTypes } from './utils/detectDataTypes';
 
-// Конфигурация бейджей для типов полей
 const TYPE_CONFIG = {
   number: {
     icon: Hash,
@@ -41,13 +40,10 @@ const TYPE_CONFIG = {
   }
 };
 
-/**
- * Компонент бейджа типа поля
- */
 const TypeBadge = ({ type }) => {
   const config = TYPE_CONFIG[type] || TYPE_CONFIG.string;
   const Icon = config.icon;
-  
+
   return (
     <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${config.bgColor} ${config.textColor} ${config.borderColor}`}>
       <Icon className="w-3 h-3" />
@@ -56,9 +52,6 @@ const TypeBadge = ({ type }) => {
   );
 };
 
-/**
- * Компонент статистики по типам полей
- */
 const TypeStats = ({ types }) => {
   const stats = useMemo(() => {
     const counts = { number: 0, date: 0, coordinate: 0, string: 0 };
@@ -67,7 +60,7 @@ const TypeStats = ({ types }) => {
     });
     return counts;
   }, [types]);
-  
+
   return (
     <div className="flex flex-wrap gap-3">
       {Object.entries(stats)
@@ -75,7 +68,7 @@ const TypeStats = ({ types }) => {
         .map(([type, count]) => {
           const config = TYPE_CONFIG[type];
           const Icon = config.icon;
-          
+
           return (
             <div
               key={type}
@@ -97,40 +90,32 @@ const TypeStats = ({ types }) => {
   );
 };
 
-/**
- * Форматирование числа с учетом настроек
- */
 const formatNumber = (value, separator = ' ') => {
   if (typeof value !== 'number') return value;
-  
+
   const parts = value.toFixed(2).split('.');
   const integerPart = parts[0];
   const decimalPart = parts[1];
-  
-  // Добавляем разделитель тысяч
+
   let formattedInteger = integerPart;
   if (separator) {
     formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, separator);
   }
-  
-  // Убираем незначащие нули в дробной части
+
   const cleanDecimal = decimalPart.replace(/0+$/, '');
-  
+
   return cleanDecimal ? `${formattedInteger}.${cleanDecimal}` : formattedInteger;
 };
 
-/**
- * Форматирование даты с учетом настроек
- */
 const formatDate = (value, format = 'DD.MM.YYYY') => {
   try {
     const date = new Date(value);
     if (isNaN(date.getTime())) return String(value);
-    
+
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    
+
     switch (format) {
       case 'MM/DD/YYYY':
         return `${month}/${day}/${year}`;
@@ -145,48 +130,39 @@ const formatDate = (value, format = 'DD.MM.YYYY') => {
   }
 };
 
-/**
- * Компонент превью данных с типизацией и статистикой
- */
 const DataPreview = ({ data, settings }) => {
-  // Определяем типы полей
+
   const types = useMemo(() => detectDataTypes(data), [data]);
-  
-  // Извлекаем колонки
+
   const allColumns = useMemo(() => {
     if (!data || data.length === 0) return [];
     return Object.keys(data[0]);
   }, [data]);
-  
-  // Фильтруем видимые колонки с учетом настроек
+
   const visibleColumns = useMemo(() => {
     if (!settings || !settings.tableSettings || !settings.tableSettings.hiddenColumns) {
       return allColumns;
     }
     return allColumns.filter(col => !settings.tableSettings.hiddenColumns.includes(col));
   }, [allColumns, settings]);
-  
-  // Применяем ограничение по количеству строк
+
   const rowsPerPage = settings?.tableSettings?.rowsPerPage || 25;
   const previewData = useMemo(() => {
     return data.slice(0, rowsPerPage === 1000 ? data.length : rowsPerPage);
   }, [data, rowsPerPage]);
-  
-  // Применяем настройку чередования строк
+
   const striped = settings?.tableSettings?.striped !== false;
-  
-  // Настройки форматирования
+
   const dateFormat = settings?.exportSettings?.dateFormat || 'DD.MM.YYYY';
   const numberSeparator = settings?.exportSettings?.numberSeparator || ' ';
-  
-  // Статистика
+
   const stats = useMemo(() => ({
     totalRows: data.length,
     totalColumns: visibleColumns.length,
     hiddenColumns: allColumns.length - visibleColumns.length,
     previewRows: previewData.length
   }), [data, visibleColumns, allColumns, previewData]);
-  
+
   if (!data || data.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-8 text-center">
@@ -195,10 +171,10 @@ const DataPreview = ({ data, settings }) => {
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-6">
-      {/* Статистика */}
+      { }
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
@@ -207,14 +183,14 @@ const DataPreview = ({ data, settings }) => {
               Превью данных
             </h3>
             <p className="text-sm text-gray-500 mt-1">
-              Загружено <span className="font-semibold text-gray-700">{stats.totalRows}</span> строк, 
+              Загружено <span className="font-semibold text-gray-700">{stats.totalRows}</span> строк,
               <span className="font-semibold text-gray-700"> {stats.totalColumns}</span> видимых полей
               {stats.hiddenColumns > 0 && (
                 <span className="text-orange-600"> ({stats.hiddenColumns} скрыто)</span>
               )}
             </p>
           </div>
-          
+
           <div className="flex items-center gap-2 bg-sakura-50 px-4 py-2 rounded-lg border border-sakura-200">
             <Info className="w-4 h-4 text-sakura-600" />
             <span className="text-sm text-gray-700">
@@ -222,12 +198,12 @@ const DataPreview = ({ data, settings }) => {
             </span>
           </div>
         </div>
-        
-        {/* Статистика по типам */}
+
+        { }
         <TypeStats types={types} />
       </div>
-      
-      {/* Таблица */}
+
+      { }
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
@@ -235,7 +211,7 @@ const DataPreview = ({ data, settings }) => {
               <tr className="bg-gradient-to-r from-sakura-50 to-sakura-100 border-b-2 border-sakura-300">
                 {visibleColumns.map((col) => {
                   const fieldType = types[col]?.type || 'string';
-                  
+
                   return (
                     <th key={col} className="px-4 py-4 text-left">
                       <div className="space-y-2">
@@ -251,8 +227,8 @@ const DataPreview = ({ data, settings }) => {
             </thead>
             <tbody>
               {previewData.map((row, rowIdx) => (
-                <tr 
-                  key={rowIdx} 
+                <tr
+                  key={rowIdx}
                   className={`border-b border-gray-200 hover:bg-sakura-50 transition-colors ${
                     striped && rowIdx % 2 === 0 ? 'bg-white' : striped ? 'bg-gray-50' : 'bg-white'
                   }`}
@@ -260,10 +236,9 @@ const DataPreview = ({ data, settings }) => {
                   {visibleColumns.map((col) => {
                     const value = row[col];
                     const fieldType = types[col]?.type || 'string';
-                    
-                    // Форматирование значения в зависимости от типа
+
                     let displayValue = '-';
-                    
+
                     if (value !== null && value !== undefined && value !== '') {
                       if (fieldType === 'number') {
                         const numValue = typeof value === 'number' ? value : parseFloat(value);
@@ -271,13 +246,13 @@ const DataPreview = ({ data, settings }) => {
                       } else if (fieldType === 'date') {
                         displayValue = formatDate(value, dateFormat);
                       } else if (fieldType === 'boolean') {
-                        // Форматирование булевых значений
+
                         const boolValue = String(value).toLowerCase();
                         const isTrue = boolValue === 'true' || boolValue === 'yes' || boolValue === '1' || value === true;
                         displayValue = (
                           <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
-                            isTrue 
-                              ? 'bg-green-100 text-green-700' 
+                            isTrue
+                              ? 'bg-green-100 text-green-700'
                               : 'bg-red-100 text-red-700'
                           }`}>
                             {isTrue ? '✓ Да' : '✗ Нет'}
@@ -287,10 +262,10 @@ const DataPreview = ({ data, settings }) => {
                         displayValue = String(value);
                       }
                     }
-                    
+
                     return (
-                      <td 
-                        key={col} 
+                      <td
+                        key={col}
                         className="px-4 py-3 text-sm text-gray-700"
                       >
                         {fieldType === 'boolean' ? (
@@ -308,8 +283,8 @@ const DataPreview = ({ data, settings }) => {
             </tbody>
           </table>
         </div>
-        
-        {/* Футер таблицы */}
+
+        { }
         {stats.totalRows > stats.previewRows && (
           <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 border-t border-gray-200">
             <p className="text-center text-gray-600 text-sm">

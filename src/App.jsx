@@ -9,9 +9,9 @@ import FilterPanel from './FilterPanel.jsx';
 import DatasetManager from './DatasetManager.jsx';
 import { detectDataTypes, hasCoordinates } from './utils/detectDataTypes';
 import { applyFilters } from './utils/applyFilters';
-import { 
-  saveDatasets, 
-  loadDatasets, 
+import {
+  saveDatasets,
+  loadDatasets,
   saveSettings,
   loadSettings,
   exportProject,
@@ -20,25 +20,23 @@ import {
 import './styles/common.css';
 
 function App() {
-  // Состояние
+
   const [datasets, setDatasets] = useState([]);
   const [activeDatasetId, setActiveDatasetId] = useState(null);
-  const [mainView, setMainView] = useState('welcome'); // 'welcome' | 'datasets'
-  const [datasetView, setDatasetView] = useState('table'); // 'table' | 'charts' | 'map'
+  const [mainView, setMainView] = useState('welcome');
+  const [datasetView, setDatasetView] = useState('table');
   const [globalSettings, setGlobalSettings] = useState({
     theme: 'sakura-pink'
   });
 
-  // Загрузка данных
   useEffect(() => {
     const storedDatasets = loadDatasets();
     const storedSettings = loadSettings();
-    
+
     if (storedDatasets.length > 0) setDatasets(storedDatasets);
     if (storedSettings) setGlobalSettings(storedSettings);
   }, []);
 
-  // Сохранение
   useEffect(() => {
     if (datasets.length > 0) saveDatasets(datasets);
   }, [datasets]);
@@ -47,11 +45,10 @@ function App() {
     saveSettings(globalSettings);
   }, [globalSettings]);
 
-  // Обработчики датасетов
   const handleFileLoad = (parsedData, loadedFileName) => {
     if (parsedData && parsedData.length > 0) {
       const detectedTypes = detectDataTypes(parsedData);
-      
+
       const newDataset = {
         id: `dataset_${Date.now()}`,
         name: loadedFileName.replace(/\.[^/.]+$/, ''),
@@ -81,7 +78,7 @@ function App() {
   };
 
   const updateDataset = (datasetId, updates) => {
-    setDatasets(prev => prev.map(d => 
+    setDatasets(prev => prev.map(d =>
       d.id === datasetId ? { ...d, ...updates } : d
     ));
   };
@@ -91,7 +88,6 @@ function App() {
     updateDataset(datasetId, { name: newName.trim() });
   };
 
-  // Графики
   const handleChartConfig = (config) => {
     if (!activeDataset) return;
 
@@ -112,7 +108,6 @@ function App() {
     });
   };
 
-  // Фильтры
   const handleFilterChange = (newFilters) => {
     if (!activeDataset) return;
     const filtered = applyFilters(activeDataset.data, newFilters);
@@ -122,7 +117,6 @@ function App() {
     });
   };
 
-  // Экспорт/Импорт
   const handleExportProject = () => {
     exportProject(datasets, [], globalSettings);
   };
@@ -150,7 +144,7 @@ function App() {
 
   return (
     <div className="container-main">
-      {/* Header */}
+      { }
       <header className="bg-gradient-to-r from-pink-500 to-pink-600 shadow-lg">
         <div className="container-section py-4">
           <div className="flex items-center justify-between">
@@ -184,7 +178,7 @@ function App() {
         </div>
       </header>
 
-      {/* Navigation */}
+      { }
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="container-section py-0">
           <div className="flex space-x-1">
@@ -210,16 +204,16 @@ function App() {
         </div>
       </nav>
 
-      {/* Main Content */}
+      { }
       <main>
-        {/* Welcome Screen */}
+        { }
         {mainView === 'welcome' && (
           <div className="container-section py-16">
             <div className="max-w-4xl mx-auto text-center">
               <div className="bg-gradient-to-br from-pink-100 to-pink-50 w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-8">
                 <span className="text-6xl">🌸</span>
               </div>
-              
+
               <h2 className="heading-1 mb-4">Добро пожаловать в Sakura Blossom</h2>
               <p className="text-xl text-secondary mb-12">
                 Исследуйте и визуализируйте ваши данные
@@ -247,7 +241,7 @@ function App() {
           </div>
         )}
 
-        {/* Datasets View */}
+        { }
         {mainView === 'datasets' && !activeDataset && (
           <DatasetManager
             datasets={datasets}
@@ -258,10 +252,10 @@ function App() {
           />
         )}
 
-        {/* Active Dataset View */}
+        { }
         {mainView === 'datasets' && activeDataset && (
           <div>
-            {/* Dataset Navigation */}
+            { }
             <div className="bg-white border-b border-gray-200">
               <div className="container-section py-3">
                 <div className="flex items-center justify-between">
@@ -300,7 +294,7 @@ function App() {
               </div>
             </div>
 
-            {/* Dataset Content */}
+            { }
             <div className="container-section">
               {datasetView === 'table' && (
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

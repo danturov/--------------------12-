@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { BarChart3, LineChart, PieChart, ScatterChart, AreaChart, Info } from 'lucide-react';
 
-// Конфигурация типов графиков
 const CHART_TYPES = [
   {
     id: 'bar',
@@ -50,25 +49,20 @@ const CHART_TYPES = [
   }
 ];
 
-/**
- * Компонент конструктора графиков
- */
 const ChartBuilder = ({ dataTypes, onChartConfig }) => {
   const [selectedType, setSelectedType] = useState('bar');
   const [xField, setXField] = useState('');
   const [yField, setYField] = useState('');
   const [title, setTitle] = useState('');
 
-  // Получаем конфигурацию выбранного типа графика
   const selectedChart = useMemo(
     () => CHART_TYPES.find(t => t.id === selectedType),
     [selectedType]
   );
 
-  // Фильтруем доступные поля для оси X
   const availableXFields = useMemo(() => {
     if (!dataTypes || !selectedChart) return [];
-    
+
     return Object.entries(dataTypes)
       .filter(([_, info]) => selectedChart.xTypes.includes(info.type))
       .map(([field, info]) => ({
@@ -78,10 +72,9 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
       }));
   }, [dataTypes, selectedChart]);
 
-  // Фильтруем доступные поля для оси Y
   const availableYFields = useMemo(() => {
     if (!dataTypes || !selectedChart) return [];
-    
+
     return Object.entries(dataTypes)
       .filter(([_, info]) => selectedChart.yTypes.includes(info.type))
       .map(([field, info]) => ({
@@ -91,49 +84,45 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
       }));
   }, [dataTypes, selectedChart]);
 
-  // Проверка валидности конфигурации
   const isValid = useMemo(() => {
     if (!xField || !yField) return false;
-    
+
     const xType = dataTypes[xField]?.type;
     const yType = dataTypes[yField]?.type;
-    
+
     return (
       selectedChart.xTypes.includes(xType) &&
       selectedChart.yTypes.includes(yType)
     );
   }, [xField, yField, dataTypes, selectedChart]);
 
-  // Обработчик создания графика
   const handleCreate = () => {
     if (!isValid) return;
-    
+
     const config = {
       type: selectedType,
       xField,
       yField,
       title: title || `${selectedChart.name} график`
     };
-    
+
     onChartConfig(config);
-    
-    // Сброс формы
+
     setXField('');
     setYField('');
     setTitle('');
   };
 
-  // Обработчик смены типа графика
   const handleTypeChange = (type) => {
     setSelectedType(type);
-    // Сбрасываем выбранные поля при смене типа
+
     setXField('');
     setYField('');
   };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-sakura-200">
-      {/* Заголовок */}
+      { }
       <div className="mb-6">
         <h3 className="text-xl font-bold text-gray-800 mb-2">
           Создать визуализацию
@@ -143,7 +132,7 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
         </p>
       </div>
 
-      {/* Выбор типа графика */}
+      { }
       <div className="mb-6">
         <label className="block text-sm font-semibold text-gray-700 mb-3">
           Тип графика:
@@ -152,7 +141,7 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
           {CHART_TYPES.map((chart) => {
             const Icon = chart.icon;
             const isSelected = selectedType === chart.id;
-            
+
             return (
               <button
                 key={chart.id}
@@ -164,10 +153,10 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
                 }`}
                 title={chart.description}
               >
-                <Icon 
+                <Icon
                   className={`w-8 h-8 mx-auto mb-2 ${
                     isSelected ? `text-${chart.color}-600` : 'text-gray-600'
-                  }`} 
+                  }`}
                 />
                 <div className={`text-xs font-medium ${
                   isSelected ? `text-${chart.color}-700` : 'text-gray-700'
@@ -178,8 +167,8 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
             );
           })}
         </div>
-        
-        {/* Описание выбранного типа */}
+
+        { }
         {selectedChart && (
           <div className="mt-3 flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
             <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -190,7 +179,7 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
         )}
       </div>
 
-      {/* Название графика */}
+      { }
       <div className="mb-4">
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Название графика (опционально):
@@ -204,7 +193,7 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
         />
       </div>
 
-      {/* Выбор оси X */}
+      { }
       <div className="mb-4">
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Ось X:
@@ -221,7 +210,7 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
             </option>
           ))}
         </select>
-        
+
         {availableXFields.length === 0 && (
           <p className="mt-2 text-xs text-red-600">
             Нет подходящих полей для оси X (требуется: {selectedChart?.xTypes.join(', ')})
@@ -229,7 +218,7 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
         )}
       </div>
 
-      {/* Выбор оси Y */}
+      { }
       <div className="mb-6">
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Ось Y:
@@ -246,7 +235,7 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
             </option>
           ))}
         </select>
-        
+
         {availableYFields.length === 0 && (
           <p className="mt-2 text-xs text-red-600">
             Нет подходящих полей для оси Y (требуется: {selectedChart?.yTypes.join(', ')})
@@ -254,7 +243,7 @@ const ChartBuilder = ({ dataTypes, onChartConfig }) => {
         )}
       </div>
 
-      {/* Кнопка создания */}
+      { }
       <button
         onClick={handleCreate}
         disabled={!isValid}

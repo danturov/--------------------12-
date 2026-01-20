@@ -2,10 +2,6 @@ import React, { useState } from 'react';
 import { FileUp, Trash2, FolderOpen, BarChart3, Map, Filter, ChevronRight, Edit2, Check, X, Plus } from 'lucide-react';
 import FileUploader from './Fileuploader.jsx';
 
-/**
- * Компонент управления датасетами
- * Показывает карточки всех загруженных CSV файлов
- */
 function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDataset, onFileLoad }) {
   const [hoveredId, setHoveredId] = useState(null);
   const [editingId, setEditingId] = useState(null);
@@ -33,7 +29,7 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-pink-100 p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Заголовок с кнопкой добавления */}
+        { }
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
@@ -44,7 +40,7 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
             </p>
           </div>
 
-          {/* КНОПКА ДОБАВЛЕНИЯ НОВОГО ДАТАСЕТА */}
+          { }
           <button
             onClick={() => setShowUploader(true)}
             className="px-6 py-3 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center space-x-2"
@@ -54,7 +50,7 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
           </button>
         </div>
 
-        {/* Список датасетов */}
+        { }
         {datasets.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {datasets.map((dataset) => (
@@ -65,12 +61,12 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
                 className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-pink-400 cursor-pointer"
                 onClick={() => editingId !== dataset.id && onSelectDataset(dataset.id)}
               >
-                {/* Хедер карточки */}
+                { }
                 <div className="bg-gradient-to-r from-pink-500 to-pink-600 p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       {editingId === dataset.id ? (
-                        /* Режим редактирования названия */
+
                         <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                           <input
                             type="text"
@@ -100,7 +96,7 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
                           </button>
                         </div>
                       ) : (
-                        /* Обычный режим */
+
                         <div className="flex items-center space-x-2">
                           <h3 className="text-lg font-bold text-white truncate flex-1">
                             {dataset.name}
@@ -122,16 +118,16 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
                       </p>
                     </div>
                     {editingId !== dataset.id && (
-                      <ChevronRight 
+                      <ChevronRight
                         className={`w-5 h-5 text-white transition-transform ml-2 ${
                           hoveredId === dataset.id ? 'translate-x-1' : ''
-                        }`} 
+                        }`}
                       />
                     )}
                   </div>
                 </div>
 
-                {/* Статистика */}
+                { }
                 <div className="p-4">
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
@@ -148,7 +144,7 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
                     </div>
                   </div>
 
-                  {/* Элементы */}
+                  { }
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center space-x-2 text-gray-600">
@@ -183,13 +179,13 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
                     )}
                   </div>
 
-                  {/* Дата создания */}
+                  { }
                   <div className="text-xs text-gray-500 pt-3 border-t border-gray-200">
                     Создан: {new Date(dataset.createdAt).toLocaleDateString('ru-RU')}
                   </div>
                 </div>
 
-                {/* Футер с действиями */}
+                { }
                 <div className="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200">
                   <button
                     onClick={(e) => {
@@ -217,7 +213,7 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
             ))}
           </div>
         ) : (
-          /* Пустое состояние */
+
           <div className="bg-white rounded-xl shadow-lg p-12 text-center border-2 border-dashed border-gray-300">
             <FolderOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-gray-800 mb-2">
@@ -236,7 +232,7 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
           </div>
         )}
 
-        {/* Подсказка */}
+        { }
         {datasets.length > 0 && (
           <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-start space-x-3">
@@ -248,7 +244,7 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
                   Совет
                 </h4>
                 <p className="text-sm text-blue-800">
-                  Вы можете использовать данные из нескольких датасетов в одном дашборде. 
+                  Вы можете использовать данные из нескольких датасетов в одном дашборде.
                   Просто создайте графики и таблицы для каждого датасета, а затем объедините их в редакторе дашборда.
                 </p>
               </div>
@@ -256,11 +252,11 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
           </div>
         )}
 
-        {/* Модальное окно загрузки файла */}
+        { }
         {showUploader && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
-              {/* Хедер */}
+              { }
               <div className="bg-gradient-to-r from-pink-500 to-pink-600 p-6 flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-white">
                   Загрузить датасет
@@ -273,17 +269,17 @@ function DatasetManager({ datasets, onSelectDataset, onDeleteDataset, onRenameDa
                 </button>
               </div>
 
-              {/* Контент */}
+              { }
               <div className="p-6">
-                <FileUploader 
+                <FileUploader
                   onFileLoad={(data, fileName) => {
                     onFileLoad(data, fileName);
                     setShowUploader(false);
-                  }} 
+                  }}
                 />
               </div>
 
-              {/* Футер */}
+              { }
               <div className="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-200">
                 <button
                   onClick={() => setShowUploader(false)}

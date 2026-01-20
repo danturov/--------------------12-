@@ -2,31 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { Filter, X, ChevronDown, ChevronRight, RefreshCw } from 'lucide-react';
 
 const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
-  // Состояние фильтров
+
   const [filters, setFilters] = useState({});
-  // Состояние для раскрытых секций
+
   const [expandedFields, setExpandedFields] = useState({});
-  // Уникальные значения для строковых полей
+
   const [uniqueValues, setUniqueValues] = useState({});
-  // Поисковые запросы для строковых фильтров
+
   const [searchQueries, setSearchQueries] = useState({});
 
-  // Инициализация при загрузке данных
   useEffect(() => {
     if (!dataTypes || !data) return;
 
-    // Вычисляем уникальные значения для строковых полей
     const values = {};
     Object.entries(dataTypes).forEach(([field, typeInfo]) => {
       const type = typeof typeInfo === 'string' ? typeInfo : typeInfo.type;
       if (type === 'string') {
         const unique = [...new Set(data.map(row => row[field]).filter(v => v != null))];
-        values[field] = unique.slice(0, 100); // Лимит 100 значений
+        values[field] = unique.slice(0, 100);
       }
     });
     setUniqueValues(values);
 
-    // Раскрываем первые 3 поля по умолчанию
     const initialExpanded = {};
     Object.keys(dataTypes).slice(0, 3).forEach(field => {
       initialExpanded[field] = true;
@@ -34,7 +31,6 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
     setExpandedFields(initialExpanded);
   }, [dataTypes, data]);
 
-  // Переключение раскрытия секции
   const toggleField = (field) => {
     setExpandedFields(prev => ({
       ...prev,
@@ -42,7 +38,6 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
     }));
   };
 
-  // Обновление фильтра
   const updateFilter = (field, filterData) => {
     const newFilters = {
       ...filters,
@@ -52,7 +47,6 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
     onFilterChange(newFilters);
   };
 
-  // Удаление фильтра
   const removeFilter = (field) => {
     const newFilters = { ...filters };
     delete newFilters[field];
@@ -60,29 +54,25 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
     onFilterChange(newFilters);
   };
 
-  // Сброс всех фильтров
   const resetAllFilters = () => {
     setFilters({});
     setSearchQueries({});
     onFilterChange({});
   };
 
-  // Проверка, активен ли фильтр для поля
   const isFilterActive = (field) => {
     return filters[field] !== undefined;
   };
 
-  // Получить тип поля
   const getFieldType = (typeInfo) => {
     return typeof typeInfo === 'string' ? typeInfo : typeInfo.type;
   };
 
-  // Рендер фильтра диапазона (number)
   const renderRangeFilter = (field) => {
     const values = data.map(row => row[field]).filter(v => v != null && !isNaN(v));
     const min = Math.min(...values);
     const max = Math.max(...values);
-    
+
     const currentFilter = filters[field] || { type: 'range', min, max };
 
     return (
@@ -122,14 +112,12 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
     );
   };
 
-  // Рендер фильтра выбора (string)
   const renderSelectFilter = (field) => {
     const values = uniqueValues[field] || [];
     const currentFilter = filters[field] || { type: 'select', values: [] };
     const searchQuery = searchQueries[field] || '';
-    
-    // Фильтруем значения по поиску
-    const filteredValues = values.filter(val => 
+
+    const filteredValues = values.filter(val =>
       val.toString().toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -137,7 +125,7 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
       const newValues = currentFilter.values.includes(value)
         ? currentFilter.values.filter(v => v !== value)
         : [...currentFilter.values, value];
-      
+
       updateFilter(field, {
         type: 'select',
         values: newValues
@@ -146,7 +134,7 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
 
     return (
       <div className="space-y-3">
-        {/* Поиск, если значений много */}
+        { }
         {values.length > 10 && (
           <input
             type="text"
@@ -160,7 +148,7 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
           />
         )}
 
-        {/* Список чекбоксов */}
+        { }
         <div className="max-h-48 overflow-y-auto space-y-2">
           {filteredValues.length > 0 ? (
             filteredValues.map(value => (
@@ -179,7 +167,7 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
           )}
         </div>
 
-        {/* Счетчик выбранных */}
+        { }
         {currentFilter.values.length > 0 && (
           <div className="text-xs text-pink-600 font-medium">
             Выбрано: {currentFilter.values.length}
@@ -189,13 +177,12 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
     );
   };
 
-  // Рендер фильтра дат (date)
   const renderDateFilter = (field) => {
     const dates = data.map(row => row[field]).filter(v => v != null);
     const sortedDates = dates.sort();
     const minDate = sortedDates[0];
     const maxDate = sortedDates[sortedDates.length - 1];
-    
+
     const currentFilter = filters[field] || { type: 'date', from: minDate, to: maxDate };
 
     return (
@@ -233,12 +220,10 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
     );
   };
 
-  // Рендер одного поля фильтра
   const renderFieldFilter = (field, typeInfo) => {
     const type = getFieldType(typeInfo);
     const label = typeof typeInfo === 'object' ? typeInfo.label : type;
-    
-    // Пропускаем координаты
+
     if (type === 'coordinate') return null;
 
     const isExpanded = expandedFields[field];
@@ -246,7 +231,7 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
 
     return (
       <div key={field} className="border-b border-gray-200 last:border-b-0">
-        {/* Заголовок поля */}
+        { }
         <button
           onClick={() => toggleField(field)}
           className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
@@ -262,7 +247,7 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
               {type}
             </span>
           </div>
-          
+
           {isActive && (
             <button
               onClick={(e) => {
@@ -276,7 +261,7 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
           )}
         </button>
 
-        {/* Содержимое фильтра */}
+        { }
         {isExpanded && (
           <div className="px-4 pb-4">
             {type === 'number' && renderRangeFilter(field)}
@@ -294,21 +279,21 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-      {/* Шапка панели */}
+      { }
       <div className="bg-gradient-to-r from-pink-50 to-pink-100 border-b border-pink-200 p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2">
             <Filter className="w-5 h-5 text-pink-600" />
             <h3 className="text-lg font-bold text-gray-800">Фильтры</h3>
           </div>
-          
+
           {activeFilterCount > 0 && (
             <span className="bg-pink-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
               {activeFilterCount}
             </span>
           )}
         </div>
-        
+
         {activeFilterCount > 0 && (
           <button
             onClick={resetAllFilters}
@@ -320,14 +305,14 @@ const FilterPanel = ({ dataTypes, data, onFilterChange }) => {
         )}
       </div>
 
-      {/* Список полей */}
+      { }
       <div className="max-h-[600px] overflow-y-auto">
-        {Object.entries(dataTypes).map(([field, typeInfo]) => 
+        {Object.entries(dataTypes).map(([field, typeInfo]) =>
           renderFieldFilter(field, typeInfo)
         )}
       </div>
 
-      {/* Подсказка, если фильтров нет */}
+      { }
       {Object.keys(dataTypes).length === 0 && (
         <div className="p-8 text-center">
           <Filter className="w-12 h-12 text-gray-300 mx-auto mb-3" />

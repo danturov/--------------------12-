@@ -1,8 +1,3 @@
-/**
- * Утилиты для работы с localStorage (упрощенная версия)
- * Только для датасетов
- */
-
 const STORAGE_KEYS = {
   DATASETS: 'sakura_datasets',
   SETTINGS: 'sakura_settings'
@@ -10,9 +5,6 @@ const STORAGE_KEYS = {
 
 const CURRENT_VERSION = '2.0.0';
 
-/**
- * Сохранить датасеты
- */
 export const saveDatasets = (datasets) => {
   try {
     const data = {
@@ -28,14 +20,11 @@ export const saveDatasets = (datasets) => {
   }
 };
 
-/**
- * Загрузить датасеты
- */
 export const loadDatasets = () => {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.DATASETS);
     if (!stored) return [];
-    
+
     const data = JSON.parse(stored);
     return data.datasets || [];
   } catch (error) {
@@ -44,9 +33,6 @@ export const loadDatasets = () => {
   }
 };
 
-/**
- * Сохранить настройки
- */
 export const saveSettings = (settings) => {
   try {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
@@ -57,9 +43,6 @@ export const saveSettings = (settings) => {
   }
 };
 
-/**
- * Загрузить настройки
- */
 export const loadSettings = () => {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.SETTINGS);
@@ -71,9 +54,6 @@ export const loadSettings = () => {
   }
 };
 
-/**
- * Экспорт проекта
- */
 export const exportProject = (datasets, _, settings) => {
   const project = {
     version: CURRENT_VERSION,
@@ -82,10 +62,10 @@ export const exportProject = (datasets, _, settings) => {
     settings: settings
   };
 
-  const blob = new Blob([JSON.stringify(project, null, 2)], { 
-    type: 'application/json' 
+  const blob = new Blob([JSON.stringify(project, null, 2)], {
+    type: 'application/json'
   });
-  
+
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
@@ -94,25 +74,22 @@ export const exportProject = (datasets, _, settings) => {
   URL.revokeObjectURL(url);
 };
 
-/**
- * Импорт проекта
- */
 export const importProject = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
+
     reader.onload = (e) => {
       try {
         const project = JSON.parse(e.target.result);
-        
+
         if (!project.version) {
           throw new Error('Неверный формат файла проекта');
         }
-        
+
         if (!project.datasets) {
           throw new Error('Отсутствуют данные датасетов');
         }
-        
+
         resolve({
           datasets: project.datasets,
           settings: project.settings || {}
@@ -121,15 +98,12 @@ export const importProject = (file) => {
         reject(error);
       }
     };
-    
+
     reader.onerror = () => reject(new Error('Ошибка чтения файла'));
     reader.readAsText(file);
   });
 };
 
-/**
- * Очистить все данные
- */
 export const clearAllData = () => {
   if (window.confirm('Вы уверены? Все данные будут удалены.')) {
     Object.values(STORAGE_KEYS).forEach(key => {

@@ -47,7 +47,7 @@ function Settings({ settings, onSettingsChange, columns = [] }) {
     const updated = hiddenColumns.includes(column)
       ? hiddenColumns.filter(c => c !== column)
       : [...hiddenColumns, column];
-    
+
     handleChange('tableSettings', 'hiddenColumns', updated);
   };
 
@@ -64,7 +64,7 @@ function Settings({ settings, onSettingsChange, columns = [] }) {
 
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-      {/* Header */}
+      { }
       <div className="bg-gradient-to-r from-pink-500 to-pink-600 px-6 py-4">
         <h3 className="text-2xl font-bold text-white flex items-center">
           <Sliders className="w-6 h-6 mr-2" />
@@ -72,7 +72,7 @@ function Settings({ settings, onSettingsChange, columns = [] }) {
         </h3>
       </div>
 
-      {/* Tabs */}
+      { }
       <div className="border-b border-gray-200 bg-gray-50">
         <div className="flex space-x-1 px-6">
           {tabs.map((tab) => {
@@ -95,9 +95,9 @@ function Settings({ settings, onSettingsChange, columns = [] }) {
         </div>
       </div>
 
-      {/* Content */}
+      { }
       <div className="p-6 max-h-[600px] overflow-y-auto">
-        {/* General Settings */}
+        { }
         {activeTab === 'general' && (
           <div className="space-y-6">
             <div>
@@ -160,7 +160,7 @@ function Settings({ settings, onSettingsChange, columns = [] }) {
           </div>
         )}
 
-        {/* Chart Settings */}
+        { }
         {activeTab === 'charts' && (
           <div className="space-y-6">
             <div>
@@ -236,7 +236,7 @@ function Settings({ settings, onSettingsChange, columns = [] }) {
           </div>
         )}
 
-        {/* Table Settings */}
+        { }
         {activeTab === 'table' && (
           <div className="space-y-6">
             <div>
@@ -293,7 +293,7 @@ function Settings({ settings, onSettingsChange, columns = [] }) {
           </div>
         )}
 
-        {/* Export Settings */}
+        { }
         {activeTab === 'export' && (
           <div className="space-y-6">
             <div>
@@ -358,7 +358,7 @@ function Settings({ settings, onSettingsChange, columns = [] }) {
         )}
       </div>
 
-      {/* Footer */}
+      { }
       <div className="border-t bg-gray-50 px-6 py-4 flex justify-between items-center">
         <div className="text-sm text-gray-600">
           Изменения применяются в реальном времени

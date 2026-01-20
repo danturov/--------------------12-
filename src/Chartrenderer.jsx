@@ -20,11 +20,8 @@ import {
   Cell
 } from 'recharts';
 
-/**
- * Компонент отрисовки графиков с поддержкой настроек
- */
 const ChartRenderer = ({ data, config, settings, onRemove }) => {
-  // Получаем настройки графиков
+
   const chartColors = settings?.chartColors || ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
   const chartStyle = settings?.chartStyle || {
     rounded: true,
@@ -33,51 +30,46 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
     animation: true
   };
 
-  // Подготовка данных для графика
   const chartData = useMemo(() => {
     if (!data || !config) return [];
-    
-    // Для круговой диаграммы нужна особая структура
+
     if (config.type === 'pie') {
-      // Группируем данные по xField и суммируем yField
+
       const grouped = data.reduce((acc, item) => {
         const key = String(item[config.xField] || 'Не указано');
         const value = Number(item[config.yField]) || 0;
-        
+
         if (!acc[key]) {
           acc[key] = { name: key, value: 0 };
         }
         acc[key].value += value;
-        
+
         return acc;
       }, {});
-      
+
       return Object.values(grouped);
     }
-    
-    // Для остальных типов графиков
+
     return data.map(item => ({
       [config.xField]: item[config.xField],
       [config.yField]: Number(item[config.yField]) || 0
     }));
   }, [data, config]);
 
-  // Получаем позицию легенды
   const legendProps = useMemo(() => {
     if (chartStyle.legend === 'none') {
       return null;
     }
-    
+
     const positions = {
       top: { verticalAlign: 'top', height: 36 },
       bottom: { verticalAlign: 'bottom', height: 36 },
       right: { layout: 'vertical', verticalAlign: 'middle', align: 'right' }
     };
-    
+
     return positions[chartStyle.legend] || positions.bottom;
   }, [chartStyle.legend]);
 
-  // Рендер графика в зависимости от типа
   const renderChart = () => {
     const commonProps = {
       margin: { top: 5, right: 30, left: 20, bottom: 5 }
@@ -101,16 +93,16 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData} {...commonProps} {...animationProps}>
               {chartStyle.grid && <CartesianGrid {...gridProps} />}
-              <XAxis 
-                dataKey={config.xField} 
+              <XAxis
+                dataKey={config.xField}
                 tick={{ fontSize: 12 }}
                 stroke="#6b7280"
               />
-              <YAxis 
+              <YAxis
                 tick={{ fontSize: 12 }}
                 stroke="#6b7280"
               />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
                   backgroundColor: '#ffffff',
                   border: '1px solid #e5e7eb',
@@ -119,8 +111,8 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
                 }}
               />
               {legendProps && <Legend {...legendProps} />}
-              <Bar 
-                dataKey={config.yField} 
+              <Bar
+                dataKey={config.yField}
                 fill={chartColors[0]}
                 radius={chartStyle.rounded ? [8, 8, 0, 0] : [0, 0, 0, 0]}
               />
@@ -133,16 +125,16 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData} {...commonProps} {...animationProps}>
               {chartStyle.grid && <CartesianGrid {...gridProps} />}
-              <XAxis 
+              <XAxis
                 dataKey={config.xField}
                 tick={{ fontSize: 12 }}
                 stroke="#6b7280"
               />
-              <YAxis 
+              <YAxis
                 tick={{ fontSize: 12 }}
                 stroke="#6b7280"
               />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
                   backgroundColor: '#ffffff',
                   border: '1px solid #e5e7eb',
@@ -151,9 +143,9 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
                 }}
               />
               {legendProps && <Legend {...legendProps} />}
-              <Line 
+              <Line
                 type="monotone"
-                dataKey={config.yField} 
+                dataKey={config.yField}
                 stroke={chartColors[1]}
                 strokeWidth={2}
                 dot={{ fill: chartColors[1], r: 4 }}
@@ -181,7 +173,7 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
                   <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
                 ))}
               </Pie>
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
                   backgroundColor: '#ffffff',
                   border: '1px solid #e5e7eb',
@@ -199,21 +191,21 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
           <ResponsiveContainer width="100%" height={300}>
             <ScatterChart {...commonProps} {...animationProps}>
               {chartStyle.grid && <CartesianGrid {...gridProps} />}
-              <XAxis 
+              <XAxis
                 type="number"
                 dataKey={config.xField}
                 name={config.xField}
                 tick={{ fontSize: 12 }}
                 stroke="#6b7280"
               />
-              <YAxis 
+              <YAxis
                 type="number"
                 dataKey={config.yField}
                 name={config.yField}
                 tick={{ fontSize: 12 }}
                 stroke="#6b7280"
               />
-              <Tooltip 
+              <Tooltip
                 cursor={{ strokeDasharray: '3 3' }}
                 contentStyle={{
                   backgroundColor: '#ffffff',
@@ -223,9 +215,9 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
                 }}
               />
               {legendProps && <Legend {...legendProps} />}
-              <Scatter 
+              <Scatter
                 name={config.yField}
-                data={chartData} 
+                data={chartData}
                 fill={chartColors[4]}
               />
             </ScatterChart>
@@ -237,16 +229,16 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={chartData} {...commonProps} {...animationProps}>
               {chartStyle.grid && <CartesianGrid {...gridProps} />}
-              <XAxis 
+              <XAxis
                 dataKey={config.xField}
                 tick={{ fontSize: 12 }}
                 stroke="#6b7280"
               />
-              <YAxis 
+              <YAxis
                 tick={{ fontSize: 12 }}
                 stroke="#6b7280"
               />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
                   backgroundColor: '#ffffff',
                   border: '1px solid #e5e7eb',
@@ -255,9 +247,9 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
                 }}
               />
               {legendProps && <Legend {...legendProps} />}
-              <Area 
+              <Area
                 type="monotone"
-                dataKey={config.yField} 
+                dataKey={config.yField}
                 stroke={chartColors[0]}
                 fill={chartColors[0]}
                 fillOpacity={0.6}
@@ -281,12 +273,12 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-lg border-2 border-gray-200 hover:border-sakura-300 transition-all">
-      {/* Заголовок с кнопкой удаления */}
+      { }
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-sakura-50 to-white">
         <h4 className="text-lg font-bold text-gray-800">
           {config.title}
         </h4>
-        
+
         <button
           onClick={onRemove}
           className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
@@ -296,7 +288,7 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
         </button>
       </div>
 
-      {/* График */}
+      { }
       <div className="p-6">
         {chartData.length > 0 ? (
           renderChart()
@@ -307,7 +299,7 @@ const ChartRenderer = ({ data, config, settings, onRemove }) => {
         )}
       </div>
 
-      {/* Информация о графике */}
+      { }
       <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 rounded-b-lg">
         <div className="flex items-center justify-between text-xs text-gray-600">
           <span>
